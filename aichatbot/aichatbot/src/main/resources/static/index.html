@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AI Chatbot | CodeAlpha</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #eef2ff, #f8fafc);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .app {
+            width: 100%;
+            max-width: 1000px;
+            height: 680px;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* HEADER */
+
+        .header {
+            padding: 20px 28px;
+            background: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo {
+            width: 46px;
+            height: 46px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+        }
+
+        .brand h1 {
+            font-size: 20px;
+            color: #111827;
+        }
+
+        .brand p {
+            font-size: 13px;
+            color: #6b7280;
+            margin-top: 3px;
+        }
+
+        .online {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 13px;
+            color: #16a34a;
+            font-weight: 600;
+        }
+
+        .online-dot {
+            width: 9px;
+            height: 9px;
+            background: #22c55e;
+            border-radius: 50%;
+        }
+
+        /* CHAT */
+
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .chat-box {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+            background: #f8fafc;
+        }
+
+        .message {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .message.bot {
+            justify-content: flex-start;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .bubble {
+            max-width: 70%;
+            padding: 14px 17px;
+            border-radius: 18px;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .bot .bubble {
+            background: white;
+            color: #1f2937;
+            border: 1px solid #e5e7eb;
+            border-top-left-radius: 5px;
+        }
+
+        .user .bubble {
+            background: linear-gradient(135deg, #6366f1, #7c3aed);
+            color: white;
+            border-top-right-radius: 5px;
+        }
+
+        .time {
+            display: block;
+            font-size: 10px;
+            margin-top: 6px;
+            opacity: 0.6;
+        }
+
+        /* QUICK QUESTIONS */
+
+        .quick-section {
+            padding: 12px 24px;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .quick-title {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 9px;
+        }
+
+        .quick-buttons {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+        }
+
+        .quick-btn {
+            border: 1px solid #dbe1ea;
+            background: #f8fafc;
+            color: #374151;
+            padding: 9px 13px;
+            border-radius: 20px;
+            cursor: pointer;
+            white-space: nowrap;
+            font-size: 12px;
+            transition: 0.2s;
+        }
+
+        .quick-btn:hover {
+            background: #eef2ff;
+            border-color: #818cf8;
+            color: #4f46e5;
+        }
+
+        /* INPUT */
+
+        .input-area {
+            padding: 16px 24px 20px;
+            background: white;
+            display: flex;
+            gap: 10px;
+        }
+
+        #userInput {
+            flex: 1;
+            border: 1px solid #d1d5db;
+            outline: none;
+            padding: 14px 17px;
+            border-radius: 15px;
+            font-size: 14px;
+            background: #f9fafb;
+        }
+
+        #userInput:focus {
+            border-color: #6366f1;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        #sendButton {
+            width: 52px;
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #6366f1, #7c3aed);
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        #sendButton:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 7px 15px rgba(99, 102, 241, 0.25);
+        }
+
+        /* TYPING */
+
+        .typing {
+            display: none;
+            margin-bottom: 15px;
+        }
+
+        .typing .bubble {
+            padding: 12px 17px;
+        }
+
+        .typing span {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: #9ca3af;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: bounce 1.2s infinite;
+        }
+
+        .typing span:nth-child(2) {
+            animation-delay: 0.15s;
+        }
+
+        .typing span:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        @keyframes bounce {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+
+            30% {
+                transform: translateY(-5px);
+            }
+        }
+
+        /* MOBILE */
+
+        @media (max-width: 700px) {
+            body {
+                padding: 0;
+            }
+
+            .app {
+                height: 100vh;
+                border-radius: 0;
+            }
+
+            .header {
+                padding: 17px;
+            }
+
+            .chat-box {
+                padding: 20px 15px;
+            }
+
+            .bubble {
+                max-width: 85%;
+            }
+
+            .quick-section {
+                padding: 10px 15px;
+            }
+
+            .input-area {
+                padding: 12px 15px 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- HEADER -->
+
+    <div class="header">
+
+        <div class="brand">
+
+            <div class="logo">🤖</div>
+
+            <div>
+                <h1>AI Chatbot</h1>
+                <p>Intelligent Java-powered assistant</p>
+            </div>
+
+        </div>
+
+        <div class="online">
+            <span class="online-dot"></span>
+            Online
+        </div>
+
+    </div>
+
+
+    <!-- CHAT -->
+
+    <div class="chat-container">
+
+        <div class="chat-box" id="chatBox">
+
+            <div class="message bot">
+
+                <div class="bubble">
+
+                    <strong>Hello! 👋</strong>
+
+                    <br><br>
+
+                    I'm your AI Chatbot. I can help you with Java,
+                    programming concepts, NLP basics and common
+                    technical questions.
+
+                    <span class="time">Just now</span>
+
+                </div>
+
+            </div>
+
+            <div class="typing" id="typing">
+
+                <div class="bubble">
+
+                    <span></span>
+                    <span></span>
+                    <span></span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- QUICK QUESTIONS -->
+
+        <div class="quick-section">
+
+            <div class="quick-title">
+                Quick questions
+            </div>
+
+            <div class="quick-buttons">
+
+                <button class="quick-btn"
+                    onclick="quickMessage('What is Java?')">
+                    What is Java?
+                </button>
+
+                <button class="quick-btn"
+                    onclick="quickMessage('What is NLP?')">
+                    What is NLP?
+                </button>
+
+                <button class="quick-btn"
+                    onclick="quickMessage('What can you do?')">
+                    What can you do?
+                </button>
+
+                <button class="quick-btn"
+                    onclick="quickMessage('What are your features?')">
+                    Your features
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- INPUT -->
+
+        <div class="input-area">
+
+            <input
+                type="text"
+                id="userInput"
+                placeholder="Type your message..."
+                autocomplete="off"
+            >
+
+            <button id="sendButton" onclick="sendMessage()">
+                ➤
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    const input = document.getElementById("userInput");
+    const chatBox = document.getElementById("chatBox");
+    const typing = document.getElementById("typing");
+
+
+    function getTime() {
+
+        const now = new Date();
+
+        return now.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+
+    }
+
+
+    function addMessage(message, sender) {
+
+        const div = document.createElement("div");
+
+        div.className = "message " + sender;
+
+        div.innerHTML = `
+            <div class="bubble">
+
+                ${message}
+
+                <span class="time">
+                    ${getTime()}
+                </span>
+
+            </div>
+        `;
+
+        chatBox.insertBefore(div, typing);
+
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+    }
+
+
+    function sendMessage() {
+
+    const message = input.value.trim();
+
+    if (message === "") {
+        return;
+    }
+
+    addMessage(message, "user");
+
+    input.value = "";
+
+    showTyping();
+
+    fetch("/api/chat", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            message: message
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+
+        hideTyping();
+
+        addMessage(data.response, "bot");
+
+    })
+    .catch(error => {
+
+        hideTyping();
+
+        addMessage(
+            "Sorry, I'm having trouble connecting to my Java backend. Please try again.",
+            "bot"
+        );
+
+        console.error("Chat error:", error);
+
+    });
+}
+
+
+function quickMessage(message) {
+
+    input.value = message;
+
+    sendMessage();
+
+}
+
+
+function showTyping() {
+
+    typing.style.display = "flex";
+
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+}
+
+
+function hideTyping() {
+
+    typing.style.display = "none";
+
+}
+
+
+input.addEventListener("keydown", function(event) {
+
+    if (event.key === "Enter") {
+
+        sendMessage();
+
+    }
+
+});
+
+</script>
+
+</body>
+</html>
